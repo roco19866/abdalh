@@ -1350,6 +1350,9 @@
             // Hero
             if (data.hero) {
                 if (data.hero.badge) document.querySelector('.hero-badge').textContent = data.hero.badge;
+                if (data.hero.name) {
+                    document.querySelector('.logo').innerHTML = data.hero.name + ' <span>الشمري</span>';
+                }
                 if (data.hero.title1 || data.hero.title2) {
                     const t1 = data.hero.title1 || 'سرد بصري';
                     const t2 = data.hero.title2 || 'يترك أثراً';
@@ -1425,8 +1428,8 @@
 
             // Images
             if (data.images) {
-                if (data.images['hero-img']) document.querySelector('.hero-image-wrapper img').src = data.images['hero-img'];
-                if (data.images['vision-img']) document.querySelector('.vision-image img').src = data.images['vision-img'];
+                if (data.images['hero-img-input']) document.querySelector('.hero-image-wrapper img').src = data.images['hero-img-input'];
+                if (data.images['vision-img-input']) document.querySelector('.vision-image img').src = data.images['vision-img-input'];
                 const workImgs = document.querySelectorAll('.work-card img');
                 ['work-img-0','work-img-1','work-img-2','work-img-3','work-img-4','work-img-5'].forEach((id, i) => {
                     if (data.images[id] && workImgs[i]) workImgs[i].src = data.images[id];

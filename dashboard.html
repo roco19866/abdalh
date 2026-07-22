@@ -1205,8 +1205,12 @@
                 }
             });
 
-            localStorage.setItem('portfolioData', JSON.stringify(data));
-            showToast();
+            try {
+                localStorage.setItem('portfolioData', JSON.stringify(data));
+                showToast();
+            } catch (e) {
+                alert('الصور كبيرة جداً. يُرجى استخدام صور أصغر (أقل من 1 ميغابايت) أو ضغطها.');
+            }
         }
 
         function showToast() {
