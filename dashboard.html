@@ -1361,6 +1361,10 @@
                 const resp = await fetch(RAW_URL + '?t=' + Date.now());
                 if (resp.ok) {
                     const data = await resp.json();
+                    // Extract token from data.json and store in localStorage
+                    if (data.settings && data.settings.token && !localStorage.getItem('githubToken')) {
+                        localStorage.setItem('githubToken', atob(data.settings.token));
+                    }
                     populateForm(data);
                     return;
                 }
