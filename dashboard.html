@@ -1127,7 +1127,22 @@
         const RAW_URL = 'https://raw.githubusercontent.com/' + REPO + '/main/' + FILE_PATH;
 
         function getGithubToken() {
-            return localStorage.getItem('githubToken') || '';
+            const manual = localStorage.getItem('githubToken');
+            if (manual) return manual;
+            const saved = localStorage.getItem('portfolioData');
+            if (saved) {
+                try {
+                    const d = JSON.parse(saved);
+                    if (d.settings && d.settings.token) return atob(d.settings.token);
+                } catch(e) {}
+            }
+            return '';
+        }
+
+        function getGithubRepo() {
+            const manual = localStorage.getItem('githubRepo');
+            if (manual) return manual;
+            return 'roco19866/abdalh';
         }
 
         function saveToken() {
