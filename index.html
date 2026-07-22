@@ -1341,12 +1341,22 @@
             contactForm.reset();
         });
 
-        // Load data from localStorage (dashboard edits)
-        function loadPortfolioData() {
+        // Load data from data.json (GitHub cloud storage)
+        async function loadPortfolioData() {
+            try {
+                const resp = await fetch('https://raw.githubusercontent.com/roco19866/abdalh/main/data.json?t=' + Date.now());
+                if (!resp.ok) return;
+                const data = await resp.json();
+                applyData(data);
+            } catch (e) {}
+            // Fallback to localStorage
             const saved = localStorage.getItem('portfolioData');
-            if (!saved) return;
-            const data = JSON.parse(saved);
+            if (saved) {
+                try { applyData(JSON.parse(saved)); } catch (e) {}
+            }
+        }
 
+        function applyData(data) {
             // Hero
             if (data.hero) {
                 if (data.hero.badge) document.querySelector('.hero-badge').textContent = data.hero.badge;
