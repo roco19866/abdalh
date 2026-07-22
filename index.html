@@ -1340,6 +1340,105 @@
             alert('شكراً ' + name + '! تم استلام رسالتك وسنتواصل معك قريباً.');
             contactForm.reset();
         });
+
+        // Load data from localStorage (dashboard edits)
+        function loadPortfolioData() {
+            const saved = localStorage.getItem('portfolioData');
+            if (!saved) return;
+            const data = JSON.parse(saved);
+
+            // Hero
+            if (data.hero) {
+                if (data.hero.badge) document.querySelector('.hero-badge').textContent = data.hero.badge;
+                if (data.hero.title1 || data.hero.title2) {
+                    const t1 = data.hero.title1 || 'سرد بصري';
+                    const t2 = data.hero.title2 || 'يترك أثراً';
+                    document.querySelector('.hero-title').innerHTML = t1 + '<br><span>' + t2 + '</span>';
+                }
+                if (data.hero.desc) document.querySelector('.hero-description').textContent = data.hero.desc;
+                const stats = document.querySelectorAll('.stat-item');
+                if (data.hero.stat1num && stats[0]) {
+                    stats[0].querySelector('.stat-number').textContent = data.hero.stat1num;
+                    if (data.hero.stat1label) stats[0].querySelector('.stat-label').textContent = data.hero.stat1label;
+                }
+                if (data.hero.stat2num && stats[1]) {
+                    stats[1].querySelector('.stat-number').textContent = data.hero.stat2num;
+                    if (data.hero.stat2label) stats[1].querySelector('.stat-label').textContent = data.hero.stat2label;
+                }
+                if (data.hero.stat3num && stats[2]) {
+                    stats[2].querySelector('.stat-number').textContent = data.hero.stat3num;
+                    if (data.hero.stat3label) stats[2].querySelector('.stat-label').textContent = data.hero.stat3label;
+                }
+            }
+
+            // Vision
+            if (data.vision) {
+                if (data.vision.title) document.querySelector('.vision-content h2').innerHTML = data.vision.title;
+                const visionPs = document.querySelectorAll('.vision-content p');
+                if (data.vision.text1 && visionPs[0]) visionPs[0].textContent = data.vision.text1;
+                if (data.vision.text2 && visionPs[1]) visionPs[1].textContent = data.vision.text2;
+            }
+
+            // Services
+            if (data.services) {
+                if (data.services.title) document.querySelector('#services .section-title').textContent = data.services.title;
+                if (data.services.badge) document.querySelector('#services .section-label').textContent = data.services.badge;
+                const serviceCards = document.querySelectorAll('.service-card');
+                (data.services.names || []).forEach((name, i) => {
+                    if (serviceCards[i] && name) serviceCards[i].querySelector('h3').textContent = name;
+                });
+                (data.services.descs || []).forEach((desc, i) => {
+                    if (serviceCards[i] && desc) serviceCards[i].querySelector('p').textContent = desc;
+                });
+            }
+
+            // Works
+            if (data.works) {
+                if (data.works.title) document.querySelector('#works h2').textContent = data.works.title;
+                if (data.works.badge) document.querySelector('#works .section-label').textContent = data.works.badge;
+                const workCards = document.querySelectorAll('.work-card');
+                (data.works.categories || []).forEach((cat, i) => {
+                    if (workCards[i] && cat) workCards[i].querySelector('.work-card-category').textContent = cat;
+                });
+                (data.works.names || []).forEach((name, i) => {
+                    if (workCards[i] && name) workCards[i].querySelector('.work-card-title').textContent = name;
+                });
+            }
+
+            // Clients
+            if (data.clients) {
+                if (data.clients.title) document.querySelector('#clients .section-title').textContent = data.clients.title;
+                if (data.clients.badge) document.querySelector('#clients .section-label').textContent = data.clients.badge;
+            }
+
+            // Contact
+            if (data.contact) {
+                if (data.contact.title) document.querySelector('.contact-info h2').innerHTML = data.contact.title;
+                if (data.contact.desc) document.querySelector('.contact-info > p').textContent = data.contact.desc;
+                const contactValues = document.querySelectorAll('.contact-item-value');
+                if (data.contact.email && contactValues[0]) contactValues[0].textContent = data.contact.email;
+                if (data.contact.phone && contactValues[1]) contactValues[1].textContent = data.contact.phone;
+                if (data.contact.instagram && contactValues[2]) contactValues[2].textContent = data.contact.instagram;
+                if (data.contact.footerText) document.querySelector('.footer-text').textContent = data.contact.footerText;
+                if (data.contact.footerLocation) document.querySelector('.footer-location').innerHTML = data.contact.footerLocation;
+            }
+
+            // Images
+            if (data.images) {
+                if (data.images['hero-img']) document.querySelector('.hero-image-wrapper img').src = data.images['hero-img'];
+                if (data.images['vision-img']) document.querySelector('.vision-image img').src = data.images['vision-img'];
+                const workImgs = document.querySelectorAll('.work-card img');
+                ['work-img-0','work-img-1','work-img-2','work-img-3','work-img-4','work-img-5'].forEach((id, i) => {
+                    if (data.images[id] && workImgs[i]) workImgs[i].src = data.images[id];
+                });
+                const clientImgs = document.querySelectorAll('.client-card img');
+                ['client-img-0','client-img-1','client-img-2','client-img-3'].forEach((id, i) => {
+                    if (data.images[id] && clientImgs[i]) clientImgs[i].src = data.images[id];
+                });
+            }
+        }
+
+        loadPortfolioData();
     </script>
 </body>
 </html>
