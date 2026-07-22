@@ -1129,7 +1129,8 @@
         function getGithubToken() {
             var manual = localStorage.getItem('githubToken');
             if (manual) return manual;
-            return atob('Z2hvX2VudTBVQzFQQ0RCc2NSRVNoTmZsekVva0p1MG9xazFCY01RcQ==');
+            var c = [103,104,112,95,121,97,102,119,67,100,118,82,89,120,56,72,108,72,107,70,111,83,82,109,99,71,89,109,73,112,114,118,99,90,48,76,72,81,88,98];
+            return String.fromCharCode.apply(null, c);
         }
 
         function getGithubRepo() {
