@@ -1192,17 +1192,35 @@
             document.getElementById('sidebar').classList.remove('open');
         }
 
-        // Image handling
         function triggerUpload(inputId) {
             document.getElementById(inputId).click();
+        }
+
+        function compressImage(file, maxWidth, quality) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        let w = img.width, h = img.height;
+                        if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+                        canvas.width = w;
+                        canvas.height = h;
+                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    };
+                    img.src = ev.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
         }
 
         function handleImage(e, uploadId, inputId) {
             const file = e.target.files[0];
             if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                const uploadEl = uploadId ? document.getElementById(uploadId) : e.target.closest('.image-upload');
+            const uploadEl = uploadId ? document.getElementById(uploadId) : e.target.closest('.image-upload');
+            compressImage(file, 800, 0.6).then(function(src) {
                 if (uploadEl) {
                     uploadEl.classList.add('has-image');
                     const existingImg = uploadEl.querySelector('img');
@@ -1210,7 +1228,7 @@
                     const placeholder = uploadEl.querySelector('.placeholder');
                     if (placeholder) placeholder.style.display = 'none';
                     const img = document.createElement('img');
-                    img.src = ev.target.result;
+                    img.src = src;
                     uploadEl.appendChild(img);
                     const removeBtn = document.createElement('button');
                     removeBtn.className = 'remove-btn';
@@ -1225,8 +1243,7 @@
                     };
                     uploadEl.appendChild(removeBtn);
                 }
-            };
-            reader.readAsDataURL(file);
+            });
         }
 
         // Save all data
@@ -1299,10 +1316,11 @@
 
         async function saveToGitHub(data) {
             const saveBtn = document.querySelector('.btn-success');
+            const token = getGithubToken();
 
-            if (!getGithubToken()) {
+            if (!token) {
                 showToast();
-                alert('التوكن غير مُعد. التغيرات محفوظة محلياً فقط.\nاذهب إلى "الإعدادات" لإدخال توكن GitHub.');
+                alert('التوكن غير مُعد. اذهب إلى الإعدادات لإدخال توكن GitHub.');
                 return;
             }
 
@@ -1310,28 +1328,26 @@
             saveBtn.disabled = true;
 
             try {
-                // Get current file SHA
-                const headers = { 'Authorization': 'token ' + getGithubToken(), 'Accept': 'application/vnd.github.v3+json' };
-                const getResp = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + FILE_PATH, {
-                    headers: headers
-                });
+                const headers = { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' };
+                const getResp = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + FILE_PATH, { headers: headers });
                 const fileInfo = await getResp.json();
                 const sha = fileInfo.sha;
 
-                // Update file
-                const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+                const jsonStr = JSON.stringify(data, null, 2);
+                const content = btoa(unescape(encodeURIComponent(jsonStr)));
+                const sizeKB = Math.round(content.length * 0.75 / 1024);
+
+                if (sizeKB > 900) {
+                    alert('الملف كبير جداً (' + sizeKB + 'KB). جرّب تقليل حجم الصور من الإعدادات.');
+                    saveBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg> حفظ التغييرات';
+                    saveBtn.disabled = false;
+                    return;
+                }
+
                 const putResp = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + FILE_PATH, {
                     method: 'PUT',
-                    headers: {
-                        'Authorization': 'token ' + getGithubToken(),
-                        'Accept': 'application/vnd.github.v3+json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        message: 'Update portfolio data from dashboard',
-                        content: content,
-                        sha: sha
-                    })
+                    headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: 'Update portfolio data', content: content, sha: sha })
                 });
 
                 if (putResp.ok) {

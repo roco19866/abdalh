@@ -1343,16 +1343,20 @@
 
         // Load data from data.json (GitHub cloud storage)
         async function loadPortfolioData() {
+            let loaded = false;
             try {
                 const resp = await fetch('https://raw.githubusercontent.com/roco19866/abdalh/main/data.json?t=' + Date.now());
-                if (!resp.ok) return;
-                const data = await resp.json();
-                applyData(data);
+                if (resp.ok) {
+                    const data = await resp.json();
+                    applyData(data);
+                    loaded = true;
+                }
             } catch (e) {}
-            // Fallback to localStorage
-            const saved = localStorage.getItem('portfolioData');
-            if (saved) {
-                try { applyData(JSON.parse(saved)); } catch (e) {}
+            if (!loaded) {
+                const saved = localStorage.getItem('portfolioData');
+                if (saved) {
+                    try { applyData(JSON.parse(saved)); } catch (e) {}
+                }
             }
         }
 
